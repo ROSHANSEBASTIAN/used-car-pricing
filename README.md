@@ -74,8 +74,8 @@ Nest is [MIT licensed](LICENSE).
 
 ## About the Project
 
-Create an API to find an estimate price of a used car.
-Customers should have a login option using email id and password.
-Customers will input data like model, make, mileage, year etc. and an estimate will be shown to them according to that.
-Later that customers can report the sale happened and what was the sale amount.
-Admins will be there to approve these sales reporting to avoid false claims.
+- Create an API to find an estimate price of a used car.
+- Customers should have a login option using email id and password.
+- Customers will input data like model, make, mileage, year etc. and an estimate will be shown to them according to that.
+- Later that customers can report the sale happened and what was the sale amount.
+- Admins will be there to approve these sales reporting to avoid false claims.
