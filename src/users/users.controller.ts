@@ -9,6 +9,7 @@ import {
   Query,
   NotFoundException,
   Session,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,33 +18,51 @@ import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDto } from './dto/user.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
+import { User } from './entities/user.entity';
 
 @Controller('auth')
 @Serialize(UserDto)
+@UseInterceptors(CurrentUserInterceptor)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
   ) {}
 
-  @Get('colors/:color')
-  setColor(@Param('color') color: string, @Session() session: any) {
-    session.color = color;
-  }
+  // just for learning session
+  // @Get('whoami')
+  // async whoAmI(@Session() session: any) {
+  //   const user = await this.usersService.findOne(session.userId);
+  //   if (!user) {
+  //     throw new NotFoundException('User not found');
+  //   }
+  //   return user;
+  // }
 
-  @Get('colors')
-  getColor(@Session() session: any) {
-    return session.color;
+  @Get('whoami')
+  whoAmI(@CurrentUser() user: User) {
+    return user;
   }
 
   @Post('/signup')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.authService.signUp(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto, @Session() session: any) {
+    const user = await this.authService.signUp(createUserDto);
+    session.userId = user.id;
+    return user;
   }
 
   @Post('/signin')
-  signin(@Body() signinDto: SignInDto) {
-    return this.authService.signin(signinDto);
+  async signin(@Body() signinDto: SignInDto, @Session() session: any) {
+    const user = await this.authService.signin(signinDto);
+    session.userId = user.id;
+    return user;
+  }
+
+  @Post('/signout')
+  signout(@Session() session: any) {
+    session.userId = null;
   }
 
   @Get()
