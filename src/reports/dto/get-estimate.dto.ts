@@ -1,15 +1,15 @@
+import { Transform } from 'class-transformer';
 import {
   IsLatitude,
   IsLongitude,
   IsNotEmpty,
   IsNumber,
   IsString,
-  Length,
   Max,
   Min,
 } from 'class-validator';
 
-export class CreateReportDto {
+export class GetEstimateDto {
   @IsNotEmpty()
   @IsString()
   make: string;
@@ -18,24 +18,22 @@ export class CreateReportDto {
   @IsString()
   model: string;
 
+  @Transform(({ value }) => parseInt(value))
   @IsNotEmpty()
   @IsNumber()
   @Min(1940)
   @Max(2023)
   year: number;
 
+  @Transform(({ value }) => parseFloat(value))
   @IsLatitude()
   lat: number;
 
+  @Transform(({ value }) => parseFloat(value))
   @IsLongitude()
   long: number;
 
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1000)
-  @Max(10000000)
-  price: number;
-
+  @Transform(({ value }) => parseInt(value))
   @IsNotEmpty()
   @IsNumber()
   @Min(0)

@@ -1,15 +1,51 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
+import { ApproveReportDto } from './dto/approve-report.dto';
+import { AuthGuards } from 'src/guards/auth.guards';
+import { CurrentUser } from 'src/users/decorators/current-user.decorator';
+import { User } from 'src/users/entities/user.entity';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { ReportDto } from './dto/report.dto';
+import { GetEstimateDto } from './dto/get-estimate.dto';
 
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
+  // for creating a new report
   @Post()
-  create(@Body() createReportDto: CreateReportDto) {
-    return this.reportsService.create(createReportDto);
+  @UseGuards(AuthGuards)
+  @Serialize(ReportDto)
+  createReport(
+    @Body() createReportDto: CreateReportDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.reportsService.create(createReportDto, user);
+  }
+
+  // For changing the approved status of the report.
+  @Patch('/:id')
+  changeApproval(
+    @Param('id') id: string,
+    @Body() approveReportDto: ApproveReportDto,
+  ) {
+    return this.reportsService.changeApproval(id, approveReportDto);
+  }
+
+  @Get()
+  getEstimate(@Query() query: GetEstimateDto) {
+    return this.reportsService.getEstimate(query);
   }
 
   @Get()
@@ -20,11 +56,6 @@ export class ReportsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.reportsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReportDto: UpdateReportDto) {
-    return this.reportsService.update(+id, updateReportDto);
   }
 
   @Delete(':id')
